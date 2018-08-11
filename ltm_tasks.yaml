@@ -1,0 +1,38 @@
+- name: Create LTM Pool
+  bigip_pool:
+    provider: "{{ hostvars[loc.datacenter_name]['provider'] }}"
+    name: "{{ app_name }}-{{ loc.datacenter_name }}"
+    lb_method: round-robin
+    priority_group_activation: 1
+    service_down_action: reset
+    monitors:
+      - http
+
+- name: Create LTM Pool Members
+  bigip_pool_member:
+    provider: "{{ hostvars[loc.datacenter_name]['provider'] }}"
+    pool:   "{{ app_name }}-{{ loc.datacenter_name }}"
+    address: "{{ item.pm.split(':')[0]}}"
+    port: "{{ item.pm.split(':')[1]}}"
+    priority_group: "{{ item.pr}}"
+  loop: "{{ loc.pool_members }}"
+
+- name: Create LTM iRule
+  bigip_irule:
+    provider: "{{ hostvars[loc.datacenter_name]['provider'] }}"
+    name: content-switch-phone
+    module: ltm
+    src: files/content-switch.tcl
+
+- name: Create LTM Virtual
+  bigip_virtual_server:
+    provider: "{{ hostvars[loc.datacenter_name]['provider'] }}"
+    name: "{{ app_name }}-{{ loc.datacenter_name }}"
+    destination: "{{ loc.vip_address.split(':')[0] }}"
+    port: "{{ loc.vip_address.split(':')[1] }}"
+    pool: "{{ app_name }}-{{ loc.datacenter_name }}"
+    snat: automap
+    profiles:
+      - http
+    irules:
+      - content-switch-phone

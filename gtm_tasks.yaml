@@ -1,0 +1,55 @@
+- name: Create GTM Virtual Server
+  bigip_gtm_virtual_server:
+    provider: "{{ hostvars[groups['GTM'][0]]['provider'] }}"
+    address: "{{ item.vip_address.split(':')[0] }}"
+    name: "{{ item.vip_address }}"
+    port: "{{ item.vip_address.split(':')[1] }}"
+    server_name: "{{ item.datacenter_name }}"
+  with_items: "{{ app_locations }}"
+
+- name: Create GTM Virtual Server EIP
+  bigip_gtm_virtual_server:
+    provider: "{{ hostvars[groups['GTM'][0]]['provider'] }}"
+    address: "{{ item.eip.vip_address.split(':')[0] }}"
+    name: "{{ item.eip.vip_address }}"
+    port: "{{ item.eip.vip_address.split(':')[1] }}"
+    server_name: "{{ item.eip.datacenter_name }}"
+    monitors: ['tcp']
+    virtual_server_dependencies:
+      - server: "{{ item.datacenter_name }}"
+        virtual_server: "{{ item.vip_address }}"
+  when: item.eip is defined
+  with_items: "{{ app_locations }}"
+
+- name: Create Empty List for WIP Pool Members
+  set_fact:
+    wip_pool_members: []
+
+- name: Merge WIP Pool Members
+  set_fact:
+    wip_pool_members: "{{ wip_pool_members + [{'server':item.datacenter_name , 'virtual_server':item.vip_address}]}}"
+  when: item.eip is not defined
+  with_items: "{{ app_locations }}"
+
+- name: Add EIP WIP Pool Members
+  set_fact:
+    wip_pool_members: "{{ wip_pool_members + [{'server':item.eip.datacenter_name , 'virtual_server':item.eip.vip_address}]}}"
+  when: item.eip is defined
+  with_items: "{{ app_locations }}"
+
+- name: Create WIP_Pool
+  bigip_gtm_pool:
+    provider: "{{ hostvars[groups['GTM'][0]]['provider'] }}"
+    name: "{{ app_name }}.{{ gslb_domain }}"
+    type: a
+    preferred_lb_method: round-robin
+    members: "{{wip_pool_members}}"
+
+- name: Create WIP
+  bigip_gtm_wide_ip:
+    provider: "{{ hostvars[groups['GTM'][0]]['provider'] }}"
+    name: "{{ app_name }}.{{ gslb_domain }}"
+    type: a
+    pools:
+      - name: "{{ app_name }}.{{ gslb_domain }}"
+    pool_lb_method: round-robin

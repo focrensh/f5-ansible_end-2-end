@@ -1,0 +1,6 @@
+provider:
+  server: 192.168.1.10
+  user: admin
+  password: "{{ vault_password }}"
+  validate_certs: no
+  server_port: 443

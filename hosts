@@ -1,0 +1,10 @@
+#hosts file
+localhost ansible_python_interpreter=/usr/bin/python
+
+[LTM]
+Zone1
+Zone2
+aws
+
+[GTM]
+aws

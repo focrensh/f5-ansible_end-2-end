@@ -1,0 +1,15 @@
+---
+- name: Create LTM/GTM Config
+  hosts: localhost
+  gather_facts: false
+  connection: local
+
+  tasks:
+
+    - include_tasks: ltm_tasks.yaml
+      loop: "{{ app_locations }}"
+      loop_control:
+        loop_var: loc
+
+    - include_tasks: gtm_tasks.yaml
+

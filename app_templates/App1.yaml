@@ -1,0 +1,23 @@
+app_name: example1
+gslb_domain: gslb.example.com
+app_locations:
+  - datacenter_name: Zone1
+    vip_address: 10.1.1.100:80
+    pool_members:
+      - pm: 172.16.1.100:8001
+        pr: 10
+  - datacenter_name: Zone2
+    vip_address: 10.2.1.200:80
+    pool_members:
+      - pm: 172.16.2.100:8001
+        pr: 10
+  - datacenter_name: aws
+    vip_address: 10.1.0.100:80
+    eip:
+      vip_address: <public-ElasticIP>:80
+      datacenter_name: aws_eips
+    pool_members:
+      - pm: 10.1.0.217:8001
+        pr: 10
+      - pm: 10.1.0.217:8002
+        pr: 7
