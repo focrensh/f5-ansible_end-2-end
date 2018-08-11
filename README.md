@@ -1,26 +1,28 @@
 ## Description
-This repo is meant as a starting point to demonstrate the ability to manipulate input data into a multi-site F5 GTM/LTM/AFM deployment using Ansible. The idea is to provide **Maximum Output** with **Minimum Input**. The data structure may not fit your needs exactly but can be customized to fit the standards of your organization. Given the modular nature of ansible, it would be fairly straight forward to add a section for DNS or AFM creation as part of the flow.
+This repo is meant as a starting point to demonstrate the ability to manipulate input data into a multi-site F5 GTM/LTM deployment using Ansible. The idea is to provide **Maximum Output** with **Minimum Input**. The data structure may not fit your needs exactly but can be customized to fit the standards of your organization. Given the modular nature of ansible, it would be fairly straight forward to add a section for DNS or AFM creation as part of the flow.
 
 #### Input
 
+This input represents an app that contains 1 GSLB Record and 3 LTM VIPs below it (one being fronted by an AWS EIP).
+
 ```yaml
 app_name: example1
-gslb_domain: .gslb.example.com
+gslb_domain: gslb.example.com
 app_locations:
   - datacenter_name: Zone1
-    vip_address: 10.1.1.100:80
+    vip_address: 10.1.1.10:80
     pool_members:
-      - pm: 10.2.0.217:8001
+      - pm: 172.16.1.100:8001
         pr: 10
   - datacenter_name: Zone2
-    vip_address: 10.2.1.200:80
+    vip_address: 10.2.1.10:80
     pool_members:
-      - pm: 10.2.0.217:8001
+      - pm: 172.16.2.100:8001
         pr: 10
   - datacenter_name: aws
-    vip_address: 10.1.0.100:80
+    vip_address: 10.3.1.10:80
     eip:
-      vip_address: <public-Elastic-IP>:80
+      vip_address: <public-ElasticIP>:80
       datacenter_name: aws_eips
     pool_members:
       - pm: 10.1.0.217:8001
