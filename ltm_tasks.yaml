@@ -34,5 +34,6 @@
     snat: automap
     profiles:
       - http
+      - oneconnect
     irules:
       - content-switch-phone
