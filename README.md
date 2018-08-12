@@ -47,6 +47,9 @@ With the above input, you will get the following objects:
 -  Zone2 BIG-IP LTM/AFM
 -  AWS BIG-IP LTM/GTM/AFM
 
+##### Diagram
+![alt text](files/f5_multisite_diagram.png)
+
 Each BIG-IP has its base config setup (DNS, NTP, Auth, etc). The GTM has its listeners, datacenters, and remote BIG-IPs connected. The steps below will walk through provisioning this repo to use the environment above. Please insert your environment variables as needed.
 
 ## Core File Structure
